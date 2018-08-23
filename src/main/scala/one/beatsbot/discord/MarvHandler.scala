@@ -14,6 +14,12 @@ object MarvHandler {
   val nowPlayingTitle = "Now playing"
   val SongDescription: Regex = "\\[(.*)\\]\\((.*)\\) \\[<@!?([0-9]*)>\\].*".r
 
+  def getTitle(name: String, url: String): String = {
+    if(name != "Unknown title") name else {
+      url.split("/").last.replace("_", " ")
+    }
+  }
+
   def handleMessage(message: Message): Option[Action] = {
     Option(message).filter(_.getAuthor.getIdLong == marvId)
       .flatMap(_.getEmbeds.asScala.headOption)
@@ -23,7 +29,7 @@ object MarvHandler {
         case _ => None
       })
       .map { case (name, url, userId) =>
-        PlaybackStarted(message, name, url, DiscordService.userRef(userId, message.getGuild))
+        PlaybackStarted(message, getTitle(name, url), url, DiscordService.userRef(userId, message.getGuild))
       }
   }
 }

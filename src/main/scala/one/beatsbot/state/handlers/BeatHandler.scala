@@ -13,12 +13,14 @@ trait BeatHandler { self: Circuit[BotState] =>
   def handlePlaybackEnd(playing: NowPlaying): Effect = {
     println("FINISHED")
     println(playing)
-    Database.updatePoints(playing.beat.id, getPoints(playing))
+    updatePoints(playing)
     Effect.action(DeleteMessage(playing.pointsMessage))
   }
 
-  def getPoints(playing: NowPlaying, newVotes: Option[Map[UserRef, Vote]] = None): Int = {
-    playing.storedPoints.points + newVotes.getOrElse(playing.votes).values.map(_.delta).sum
+  def updatePoints(playing: NowPlaying, newVotes: Option[Map[UserRef, Vote]] = None): Int = {
+    val points = playing.storedPoints.points + newVotes.getOrElse(playing.votes).values.map(_.delta).sum
+    Database.updatePoints(playing.beat.id, points)
+    points
   }
 
   val beatHandler: ActionHandler[BotState, Option[NowPlaying]] = new ActionHandler(zoomTo(_.nowPlaying)) {
@@ -53,7 +55,7 @@ trait BeatHandler { self: Circuit[BotState] =>
             case _ => nowPlaying.relevantMessages
           }
           val newVotes = nowPlaying.votes.updated(action.userRef, action.vote)
-          val points = getPoints(nowPlaying, Some(newVotes))
+          val points = updatePoints(nowPlaying, Some(newVotes))
           updated(
             Some(nowPlaying.copy(votes = newVotes, relevantMessages = newMessages)),
             Effect.action(SetPoints(nowPlaying.pointsMessage, points))

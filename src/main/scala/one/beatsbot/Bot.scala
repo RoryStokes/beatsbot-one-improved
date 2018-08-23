@@ -35,7 +35,8 @@ object Bot extends App {
 
   val messageListener = DiscordListener.onMessageReceived { event =>
     MarvHandler.handleMessage(event.getMessage).foreach(circuit.dispatch(_))
-    if(event.getMessage.getContentRaw.toLowerCase.startsWith("what a")) {
+    if(event.getMessage.getContentRaw.toLowerCase.startsWith("what a") ||
+      event.getMessage.getContentRaw.toLowerCase.startsWith("updoot")) {
       circuit.dispatch(VoteMessage(DiscordService.userRef(event.getMember), Updoot, event.getMessage))
     }
   }
