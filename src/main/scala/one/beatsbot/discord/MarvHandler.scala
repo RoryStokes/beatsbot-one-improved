@@ -12,7 +12,7 @@ object MarvHandler {
 
   val marvId = 234395307759108106L
   val nowPlayingTitle = "Now playing"
-  val SongDescription: Regex = "\\[(.*)\\]\\((.*)\\) \\[<@([0-9]*)>\\].*".r
+  val SongDescription: Regex = "\\[(.*)\\]\\((.*)\\) \\[<@!?([0-9]*)>\\].*".r
 
   def handleMessage(message: Message): Option[Action] = {
     Option(message).filter(_.getAuthor.getIdLong == marvId)
