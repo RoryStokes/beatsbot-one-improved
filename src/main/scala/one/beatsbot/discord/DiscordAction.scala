@@ -74,7 +74,9 @@ object DiscordAction {
         Array((i + 1).toString, beat.name, beat.points.toString)
       }.toArray
       val text = ASCIITable.fromData(headers, data).toString
-      DiscordService.sequenceAction(channel.sendMessage(s"```$text```"))
+      text.lines.grouped(23) foreach { batch =>
+        channel.sendMessage(s"```${batch.mkString("\n")}```").complete
+      }
       None
     }
   }
