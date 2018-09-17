@@ -16,8 +16,15 @@ object MarvHandler {
 
   def getTitle(name: String, url: String): String = {
     if(name != "Unknown title") name else {
-      url.split("/").last.replace("_", " ")
+      getUploadFilename(url).replace("_", " ")
     }
+  }
+
+  def getUploadFilename(url: String) = url.split("/").last
+
+  def parseUrl(url: String): String = {
+    if(url.startsWith("https://cdn.discordapp.com/attachments")) s"uploaded://${getUploadFilename(url)}"
+    else url
   }
 
   def handleMessage(message: Message): Option[Action] = {
@@ -29,7 +36,7 @@ object MarvHandler {
         case _ => None
       })
       .map { case (name, url, userId) =>
-        PlaybackStarted(message, getTitle(name, url), url, DiscordService.userRef(userId, message.getGuild))
+        PlaybackStarted(message, getTitle(name, url), parseUrl(url), DiscordService.userRef(userId, message.getGuild))
       }
   }
 }
